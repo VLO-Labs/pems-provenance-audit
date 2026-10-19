@@ -164,7 +164,7 @@ provenance would carry a larger imputed share than the benchmarks above.
 
 ## 7. Reproducibility
 
-Code: https://github.com/VLO-Labs/pems-provenance-audit **[CONFIRM org / repo name]**. It runs on Python
+Code: https://github.com/VLO-Labs/pems-provenance-audit (Apache-2.0). It runs on Python
 3.11+ (tested on 3.12). Each audit runs in under 10 seconds on a 24-core workstation, with a peak of
 about 7.5 GB RAM. The PeMS inputs total about 7.5 GB.
 
@@ -180,6 +180,8 @@ python pems_audit.py astgcn --npz pems08.npz --start 2016-07-01 --pems-dir pems/
 ```
 
 We do not redistribute PeMS data or the benchmark files.
+
+*This report is licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). © 2026 VLO Labs, Inc.*
 
 ## References
 

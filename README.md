@@ -59,4 +59,4 @@ See [`CITATION.cff`](CITATION.cff).
 
 ## License
 
-Code: Apache-2.0 **[CONFIRM]**. Report: CC BY 4.0 **[CONFIRM]**.
+Code: [Apache-2.0](LICENSE). Report and figure: [CC BY 4.0](report/LICENSE.md).
