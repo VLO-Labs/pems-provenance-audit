@@ -1,0 +1,10 @@
+# PeMS files and benchmark files are not redistributed here; keep local copies out of git
+pems/
+data/
+*.h5
+*.npz
+*.txt.gz
+*.csv
+venv/
+__pycache__/
+report/*.html
