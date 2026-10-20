@@ -5,8 +5,8 @@ authors:
   - family-names: Hakobyan
     given-names: Hayk
     affiliation: "VLO Labs, Inc."
-date-released: 2026-10-19
-version: 1.0.0
+date-released: 2026-10-20
+version: 1.0.1
 license:
   - Apache-2.0
   - CC-BY-4.0
