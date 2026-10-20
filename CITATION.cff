@@ -7,9 +7,7 @@ authors:
     affiliation: "VLO Labs, Inc."
 date-released: 2026-10-20
 version: 1.0.1
-license:
-  - Apache-2.0
-  - CC-BY-4.0
+license: Apache-2.0
 repository-code: "https://github.com/VLO-Labs/pems-provenance-audit"
 keywords:
   - data provenance
