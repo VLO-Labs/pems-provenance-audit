@@ -141,15 +141,19 @@ def cmd_astgcn(a):
     load_pems(con, pems_files(Path(a.pems_dir), first, last))
 
     # Re-identification. Candidates: PeMS stations whose total_flow equals the node's flow on >= 95% of the
-    # first day's 288 steps. Several stations can share an identical day (often imputed ones), so each
-    # candidate is scored by identical cells over the whole window and the best score wins.
-    day, thr = 288, int(0.95 * 288)
-    con.register("nf_df", pd.DataFrame({"node": np.tile(np.arange(N), day), "t": np.repeat(t[:day], N),
-                                        "flow": x[:day, :, 0].ravel()}))
+    # 288 steps of ANY of the first `days` days (several days, so a node whose first day is flat or matches
+    # another station by coincidence still finds its station). Several stations can share an identical
+    # series (often imputed ones), so each candidate is then scored by identical cells over the whole
+    # window and the best score wins.
+    day, thr, days = 288, int(0.95 * 288), min(a.days, T // 288)
+    k = days * day
+    con.register("nf_df", pd.DataFrame({"node": np.tile(np.arange(N), k), "t": np.repeat(t[:k], N),
+                                        "d": np.repeat(np.arange(k) // day, N), "flow": x[:k, :, 0].ravel()}))
     con.execute(f"""
         CREATE TABLE cand AS
-        SELECT nf.node, p.station FROM nf_df nf JOIN p ON p.t = nf.t AND p.total_flow = nf.flow
-        GROUP BY 1, 2 HAVING count(*) >= {thr}""")
+        SELECT DISTINCT node, station FROM (
+            SELECT nf.node, p.station, nf.d FROM nf_df nf JOIN p ON p.t = nf.t AND p.total_flow = nf.flow
+            GROUP BY 1, 2, 3 HAVING count(*) >= {thr})""")
     con.register("b_df", pd.DataFrame({"t": np.repeat(t, N), "node": np.tile(np.arange(N), T),
                                        "v": x[:, :, 0].ravel()}))
     con.execute("""
@@ -158,6 +162,21 @@ def cmd_astgcn(a):
                sum(CASE WHEN p.pct_observed = 0 THEN 1 ELSE 0 END) AS n_imp
         FROM cand c JOIN b_df b ON b.node = c.node JOIN p ON p.station = c.station AND p.t = b.t
         GROUP BY c.node, c.station""")
+    # Fallback for nodes with no candidate or a weak best match (< 99% of steps identical): score every
+    # station over the whole window. Only a few nodes need it, so the exhaustive search stays cheap.
+    weak_nodes = [r[0] for r in con.execute(f"""
+        SELECT n.node FROM (SELECT unnest(range({N})) AS node) n LEFT JOIN sc USING (node)
+        GROUP BY n.node HAVING coalesce(max(sc.eq), 0) < {0.99 * T}""").fetchall()]
+    if weak_nodes:
+        con.execute(f"""
+            INSERT INTO sc
+            SELECT b.node, p.station, sum(CASE WHEN p.total_flow = b.v THEN 1 ELSE 0 END) AS eq,
+                   sum(CASE WHEN p.pct_observed = 0 THEN 1 ELSE 0 END) AS n_imp
+            FROM b_df b JOIN p ON p.t = b.t
+            WHERE b.node IN ({",".join(map(str, weak_nodes))})
+              AND (b.node, p.station) NOT IN (SELECT node, station FROM sc)
+            GROUP BY b.node, p.station HAVING sum(CASE WHEN p.total_flow = b.v THEN 1 ELSE 0 END) > 0""")
+        print(f"full-window search for {len(weak_nodes)} node(s) without a strong first-days match")
     # stations tied for the best full-window score; any of them is an equally valid identification
     con.execute("""
         CREATE TABLE tied AS
@@ -169,6 +188,10 @@ def cmd_astgcn(a):
           f"{multi} node(s) tied between stations over the full window")
     if ok < N:
         sys.exit(f"{N - ok} node(s) not re-identified; check --start and --pems-dir (no partial results reported)")
+    weak = con.execute(f"SELECT node, station, best FROM tied WHERE best < {0.99 * T} GROUP BY ALL ORDER BY best").fetchall()
+    if weak:
+        print(f"note: {len(weak)} node(s) match their station on < 99% of steps (node, station, identical steps): "
+              + ", ".join(f"({n}, {s}, {b})" for n, s, b in weak[:10]))
     dup = con.execute("SELECT count(*) FROM (SELECT station FROM m GROUP BY station HAVING count(*) > 1)").fetchone()[0]
     if dup:
         print(f"warning: {dup} PeMS station(s) assigned to more than one node", file=sys.stderr)
@@ -219,6 +242,7 @@ def main():
     s.add_argument("--start", required=True, help="first day of the benchmark, YYYY-MM-DD")
     s.add_argument("--pems-dir", required=True)
     s.add_argument("--mapping", help="write the node -> PeMS station mapping CSV here")
+    s.add_argument("--days", type=int, default=3, help="days used to find candidate stations (default 3)")
     s.set_defaults(fn=cmd_astgcn)
     s = sub.add_parser("summary", help="measured / partial / imputed shares in PeMS files")
     s.add_argument("--pems-dir", required=True)

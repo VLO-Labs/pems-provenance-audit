@@ -1,19 +1,16 @@
 cff-version: 1.2.0
 message: "If you use this audit or its code, please cite it as below."
-title: "Three widely used PeMS traffic benchmarks contain unflagged imputed values: a cell-level provenance audit of PEMS-BAY, PEMS04 and PEMS08"
+title: "Five widely used PeMS traffic benchmarks contain unflagged imputed values: a cell-level provenance audit of PEMS-BAY, PEMS03, PEMS04, PEMS07 and PEMS08"
 authors:
   - family-names: Hakobyan
     given-names: Hayk
     affiliation: "VLO Labs, Inc."
+    orcid: "https://orcid.org/0009-0002-2960-8266"
 date-released: 2026-10-20
-version: 1.0.1
+version: 1.1.0
 license: Apache-2.0
 repository-code: "https://github.com/VLO-Labs/pems-provenance-audit"
 doi: 10.5281/zenodo.23490606
-identifiers:
-  - type: doi
-    value: 10.5281/zenodo.23490607
-    description: "Version 1.0.1"
 keywords:
   - data provenance
   - traffic forecasting

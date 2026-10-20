@@ -1,21 +1,22 @@
-# Three widely used PeMS traffic benchmarks contain unflagged imputed values: a cell-level provenance audit of PEMS-BAY, PEMS04 and PEMS08
+# Five widely used PeMS traffic benchmarks contain unflagged imputed values: a cell-level provenance audit of PEMS-BAY, PEMS03, PEMS04, PEMS07 and PEMS08
 
-**Hayk Hakobyan** · VLO Labs, Inc. · hayk@vlolabs.com · Version 1.0, October 2026
+**Hayk Hakobyan** · VLO Labs, Inc. · hayk@vlolabs.com · Version 1.1, October 2026
 
 ---
 
 ## Abstract
 
 The Caltrans Performance Measurement System (PeMS) records, for every detector station and 5-minute
-interval, how much of the reported value was measured and how much was imputed. Three widely used
-spatio-temporal forecasting benchmarks derived from PeMS (PEMS-BAY, PEMS04 and PEMS08) are distributed
-without that record. We matched every value in the released files against the PeMS station records they
-were drawn from. Every value present in both sources is identical (for PEMS04 and PEMS08, under their
-inferred time windows and a recovered node-to-station mapping). **24.5% of PEMS-BAY speed values, 31.8%
-of PEMS04 flow values and 48.1% of PEMS08 flow values fall on intervals that PeMS marks as fully
-imputed.** They are PeMS's imputed numbers, carried into the benchmarks without a flag. PEMS04 and PEMS08
-also contain groups of nodes whose entire series are identical: 20 of 307 and 25 of 170 nodes. Each group
-traces to a PeMS station that was 100% imputed throughout the window. For the same 282 PEMS-BAY sensors
+interval, how much of the reported value was measured and how much was imputed. Five widely used
+spatio-temporal forecasting benchmarks derived from PeMS (PEMS-BAY, PEMS03, PEMS04, PEMS07 and PEMS08) are
+distributed without that record. We matched every value in the released files against the PeMS station
+records they were drawn from. More than 99.4% of each benchmark's values are identical to PeMS (100% of
+those present in both sources for PEMS-BAY, PEMS04 and PEMS08; Section 4.1 gives the exceptions).
+**The share of benchmark values on intervals PeMS marks as fully imputed is 24.5% (PEMS-BAY), 21.6%
+(PEMS03), 31.8% (PEMS04), 43.5% (PEMS07) and 48.1% (PEMS08).** They are PeMS's imputed numbers, carried
+into the benchmarks without a flag. The four anonymized benchmarks also contain groups of nodes whose
+entire series are identical: 13 of 358 (PEMS03), 20 of 307 (PEMS04), 151 of 883 (PEMS07) and 25 of 170
+(PEMS08) nodes. Every group traces to a PeMS station that was 100% imputed throughout the window. For the same 282 PEMS-BAY sensors
 still reporting today, the fully imputed share has risen from 24.5% (2017) to 54.1% (2025–26). We release
 the audit code so anyone with a free PeMS account can reproduce these results.
 
@@ -29,8 +30,8 @@ lane in the interval was measured, 0 means the whole value was imputed, and valu
 PeMS data underlie several standard benchmarks for traffic forecasting with graph and sequence models:
 PEMS-BAY (speed, 325 Bay Area sensors) introduced with DCRNN [3]; PEMS04 and PEMS08 (flow, occupancy and
 speed) released with ASTGCN [4]; PEMS03 and PEMS07 released with STSGCN [5]; and the larger LargeST
-collection [6]. This report audits PEMS-BAY, PEMS04 and PEMS08. None of the three files carries
-per-value provenance.
+collection [6]. This report audits PEMS-BAY, PEMS03, PEMS04, PEMS07 and PEMS08. None of the five files
+carries per-value provenance.
 
 ## 2. Data
 
@@ -41,20 +42,33 @@ per-value provenance.
 | PEMS-BAY | DCRNN repository [3]; `pems-bay.h5` on the Google Drive linked from its README | speed; 325 columns = PeMS station IDs; 52,116 rows of naive local time, 2017-01-01 00:00 → 2017-06-30 23:55 (52,128 steps minus the 12 missing at the 2017-03-12 daylight-saving change) |
 | PEMS04 | ASTGCN repository [4], `data/PEMS04/pems04.npz` | array (16992, 307, 3): flow, occupancy, speed; nodes numbered 0–306; no timestamps |
 | PEMS08 | ASTGCN repository [4], `data/PEMS08/pems08.npz` | array (17856, 170, 3); nodes numbered 0–169; no timestamps |
+| PEMS03 | ASTGNN repository [8], `data/PEMS03/PEMS03.npz` (+ `PEMS03.txt`, a list of 358 PeMS station IDs) | array (26208, 358, 1): flow; no timestamps |
+| PEMS07 | ASTGNN repository [8], `data/PEMS07/PEMS07.npz` | array (28224, 883, 1): flow; nodes numbered 0–882; no timestamps |
+
+PEMS03 and PEMS07 were introduced with STSGCN [5], whose own release is hosted on a file-sharing service
+we could not access. We used the copies in the repository of ASTGNN [8], by the same research group,
+whose PEMS04 file is byte-identical to the ASTGCN release audited here.
 
 SHA-256 of the files audited:
 `pems-bay.h5` 65d69fb0a2323dba9867179eb7af47c8b814186bc459ff0a4937d21614153c8f ·
 `pems04.npz` 95a3c9b720fffdb85f0330d09bfab41b0b3cad0ca86c0d7d5f3accacb4ac999a ·
-`pems08.npz` e1d03ce74e9fb79149e6e7c37c680214822c4a285baa2f42278cacabcd25c075
+`pems08.npz` e1d03ce74e9fb79149e6e7c37c680214822c4a285baa2f42278cacabcd25c075 ·
+`PEMS03.npz` 34859517425eded66a0014db63de54b95d0428c38890741a1710ed4d3b043de8 ·
+`PEMS07.npz` a07887e610aa986276209bc9384d14ed7858fdcad1ded67f53dca19eb828600b
 
 PEMS04 and PEMS08 contain 16,992 and 17,856 five-minute steps (59 and 62 days). We used the windows most
 often reported for them: 2018-01-01 → 2018-02-28 (PEMS04) and 2016-07-01 → 2016-08-31 (PEMS08). Under
 these windows every node matches a PeMS station exactly over the full window (Section 3). We also tested
 2018-07-01 → 2018-08-31 for PEMS08, which some secondary sources give: no node matches. Neither window
-crosses a daylight-saving change, so the absence of matches is not a time-shift artefact.
+crosses a daylight-saving change, so the absence of matches is not a time-shift artefact. For PEMS03
+(91 days) and PEMS07 (98 days) we used 2018-09-01 → 2018-11-30 and 2017-05-01 → 2017-08-06; every node
+re-identifies under them. For PEMS03 the published station list agrees with our re-identification for 345
+of 358 nodes, and the other 13 are duplicated nodes (Section 4.3) whose published and re-identified
+stations carry identical series.
 
-**PeMS records:** Clearinghouse `station_5min` files for District 4 (2017-01-01 → 2017-06-30, 181 files;
-2018-01-01 → 2018-02-28, 59 files) and District 8 (2016-07-01 → 2016-08-31, 62 files), retrieved in
+**PeMS records:** Clearinghouse `station_5min` files for District 3 (2018-09-01 → 2018-11-30, 91 files),
+District 4 (2017-01-01 → 2017-06-30, 181 files; 2018-01-01 → 2018-02-28, 59 files), District 7
+(2017-05-01 → 2017-08-06, 98 files) and District 8 (2016-07-01 → 2016-08-31, 62 files), retrieved in
 October 2026. Timestamps are naive Pacific local time, as in PEMS-BAY. For context we also summarize
 District 4 for 2025-10 → 2026-09 (363 of 365 daily files available) and District 7 (Los Angeles) for
 2025-09-27 → 2026-09-25 (362 of 364).
@@ -66,24 +80,27 @@ station and timestamp. PEMS-BAY speed is compared with PeMS `avg_speed`, and PEM
 `total_flow`. Equality is exact; no tolerance is applied. Both sides hold the same decimal values (speed
 to 0.1 mph, flow as integers), so exact comparison is well defined. Each cell is classed by the PeMS
 record's `% observed`: measured (100), partial (1–99), imputed (0), or *no PeMS record* where PeMS has no
-row for that station and timestamp. Only the flow channel of PEMS04 and PEMS08 is audited; occupancy and
-speed come from the same PeMS records.
+row for that station and timestamp. Only the flow channel of PEMS04 and PEMS08 is audited (PEMS03 and
+PEMS07 contain flow only); occupancy and speed come from the same PeMS records.
 
-**Re-identifying PEMS04 and PEMS08 nodes.** For each node, candidate stations are those whose
-`total_flow` equals the node's flow on at least 95% of the 288 steps of the first day. Each candidate is
-scored by the number of identical cells over the whole window, and the best score wins. Some nodes tie
-between several stations whose flow is identical over the entire window (Section 4.3). Our default
-assignment takes the lowest station ID, and we report the range of the imputed share over every possible
-choice among tied stations. That range has zero width for both benchmarks, so the choice does not affect
-any reported share.
+**Re-identifying nodes (PEMS03, PEMS04, PEMS07, PEMS08).** For each node, candidate stations are those
+whose `total_flow` equals the node's flow on at least 95% of the 288 steps of any of the first three
+days. Each candidate is scored by the number of identical cells over the whole window, and the best
+score wins. Nodes with no candidate, or whose best candidate matches fewer than 99% of steps, are
+re-scored against every station over the whole window. Some nodes tie between several stations whose
+flow is identical over the entire window (Section 4.3). Our default assignment takes the lowest station
+ID, and we report the range of the imputed share over every possible choice among tied stations. That
+range has zero width for all four benchmarks to two decimal places, so the choice does not affect any
+reported share.
 
 ## 4. Results
 
 ![Figure 1](fig1-provenance.png)
 
 **Figure 1.** *(A)* Share of benchmark values on intervals PeMS marks as fully measured, partially
-measured or fully imputed. Every value present in both sources is identical, so the red segments are PeMS
-imputations carried into the benchmarks. Bottom bar: a year of current PeMS source data for Los Angeles
+measured or fully imputed. Benchmark values are identical to PeMS (Section 4.1), so the red segments are
+PeMS imputations carried into the benchmarks. The PEMS03 bar does not reach 100% because 0.4% of its cells
+have no PeMS record. Bottom bar: a year of current PeMS source data for Los Angeles
 (District 7), for context. *(B)* Monthly share of fully measured intervals across all District 4 (Bay
 Area) stations, in the period PEMS-BAY and PEMS04 were drawn from and in 2025–26. The gap between periods
 is not drawn. Shares may not sum to exactly 100% because of rounding.
@@ -95,6 +112,10 @@ is not drawn. Shares may not sum to exactly 100% because of rounding.
 | PEMS-BAY (speed) | 16,937,700 | 57.7% | 17.9% | **24.5%** | 16,937,179 (every cell for which PeMS has a value) |
 | PEMS04 (flow) | 5,216,544 | 57.1% | 11.1% | **31.8%** | 5,216,544 (100%) |
 | PEMS08 (flow) | 3,035,520 | 42.8% | 9.1% | **48.1%** | 3,035,520 (100%) |
+| PEMS03 (flow) | 9,382,464 | 64.8% | 13.2% | **21.6%** | 9,333,445 (99.48%) |
+| PEMS07 (flow) | 24,921,792 | 40.2% | 16.3% | **43.5%** | 24,882,738 (99.84%) |
+
+PEMS03 shares are of all cells; 0.4% of its cells have no PeMS record (below).
 
 The only PEMS-BAY cells that are not identical are 521 zeros, all where PeMS has no value. 389 fall on
 three 5-minute intervals for which PeMS has no record for some sensors (2017-04-20 01:40, 2017-05-05 19:55
@@ -103,6 +124,15 @@ benchmark encodes these gaps as 0. DCRNN's reference implementation masks zeros 
 its loss and its evaluation metrics [3], so these cells are excluded from its scoring. The imputed values,
 by contrast, are non-zero and are scored.
 
+PEMS07 behaves the same way: its 25,818 cells with no PeMS value are all zeros. Its only differing cells
+(13,236) all belong to a single node whose series is flat on its first days; its best station match
+covers 50% of the window, so that node's identification is uncertain. PEMS03 differs in one place: on
+2018-09-04, 103 consecutive intervals (about 8.5 hours) are absent from the PeMS archive for every
+station, yet the benchmark holds values for all of them, almost all non-zero. Those 36,874 cells, and
+4,120 of the 4,130 cells where both sources have a value but differ, fall on that day. The benchmark's
+values there cannot be traced to the current PeMS archive. They may have been filled by the authors or
+been present in PeMS when the data were downloaded.
+
 ### 4.2 Imputation is concentrated in a subset of sensors
 
 In PEMS-BAY, 200 sensors are fully imputed on fewer than 10% of their intervals, 65 on 10–50%, 14 on
@@ -110,7 +140,7 @@ In PEMS-BAY, 200 sensors are fully imputed on fewer than 10% of their intervals,
 almost entirely the output of PeMS's imputation. On 2017-01-01 and 2017-01-02 none of the 187,200
 benchmark-sensor intervals is fully measured, yet both days appear complete in the released file.
 
-### 4.3 PEMS04 and PEMS08 contain duplicated, wholly imputed nodes
+### 4.3 The anonymized benchmarks contain duplicated, wholly imputed nodes
 
 Some benchmark nodes have flow series that are identical to each other at every one of the window's
 steps:
@@ -119,9 +149,11 @@ steps:
 |---|---|---|---|
 | PEMS04 | 20 of 307 (6.5%) | 2 (15, 5) | 100% imputed in every interval of the window |
 | PEMS08 | 25 of 170 (14.7%) | 4 (8, 8, 7, 2) | 100% imputed in every interval of the window |
+| PEMS03 | 13 of 358 (3.6%) | 3 (8, 3, 2) | 100% imputed in every interval of the window |
+| PEMS07 | 151 of 883 (17.1%) | 16 (31, 31, 25, 10, 9, 7, 6, 6, 6, 4, 4, 3, 3, 2, 2, 2) | 100% imputed in every interval of the window |
 
-These are not empty series: each has 145–326 distinct values. In PeMS the same series is carried by
-between 36 and 95 stations per group, so the series appears to be a common imputation profile applied to stations
+For PEMS04 and PEMS08 we checked further. These are not empty series: each has 145–326 distinct values.
+In PeMS the same series is carried by between 36 and 95 stations per group, so the series appears to be a common imputation profile applied to stations
 that measured nothing. Some duplicated nodes are directly connected in the benchmark's road graph (for
 example, 10 edges among the 15-node PEMS04 group), so graph models see identical neighbors.
 
@@ -137,11 +169,12 @@ provenance would carry a larger imputed share than the benchmarks above.
 
 ## 5. Implications
 
-- **Evaluation targets include imputed values.** Under the standard protocols, a quarter to a half of the
+- **Evaluation targets include imputed values.** Under the standard protocols, a fifth to a half of the
   scored targets are PeMS imputations. Errors on those targets partly measure agreement with PeMS's
   imputation rather than observed traffic.
 - **Inputs include imputed and duplicated values.** Models may partly learn the imputation procedure's
-  regularities, and graph models in PEMS04/PEMS08 see some neighborhoods made of identical copies.
+  regularities, and graph models on the anonymized benchmarks see some neighborhoods made of identical
+  copies (in PEMS07, one node in six).
 - **The effect on published results is untested.** We do not claim that any reported ranking changes.
   Re-scoring standard models on measured targets only is the obvious next step, and this release makes
   it straightforward: the class of every benchmark cell can be regenerated with the code.
@@ -153,10 +186,12 @@ provenance would carry a larger imputed share than the benchmarks above.
 - PeMS may reprocess historical data. The exact equality we observe indicates that the archived values
   we retrieved in 2026 are the values the benchmarks contain, but we cannot rule out later changes to the
   `% observed` field itself.
-- The PEMS04 and PEMS08 windows are inferred, not recorded in the files. The evidence for them is that
-  every node matches exactly under them. For PEMS08 the main alternative window does not match. We did
-  not test alternatives for PEMS04.
-- PEMS03, PEMS07 and LargeST are not audited here. LargeST's published processing averages to 15-minute
+- The PEMS03, PEMS04, PEMS07 and PEMS08 windows are inferred, not recorded in the files. The evidence
+  for them is that every node re-identifies under them. For PEMS08 the main alternative window does not
+  match. We did not test alternatives for the others.
+- PEMS03 and PEMS07 were audited from the ASTGNN copies, not STSGCN's original release.
+- One PEMS07 node (of 883) has an uncertain identification (Section 4.1). It affects that node's cells only.
+- LargeST is not audited here. LargeST's published processing averages to 15-minute
   intervals and fills gaps with zeros [7], so PeMS-imputed values would pass through. Its audit needs
   different matching because the values are averages.
 - The duplicated-node interpretation (a shared imputation profile) is inferred from the data; PeMS does
@@ -165,8 +200,8 @@ provenance would carry a larger imputed share than the benchmarks above.
 ## 7. Reproducibility
 
 Code: https://github.com/VLO-Labs/pems-provenance-audit (Apache-2.0). It runs on Python
-3.11+ (tested on 3.12). Each audit runs in under 10 seconds on a 24-core workstation, with a peak of
-about 7.5 GB RAM. The PeMS inputs total about 7.5 GB.
+3.11+ (tested on 3.12). Each audit runs in under 15 seconds on a 24-core workstation. Peak memory is
+about 7.5 GB, except PEMS07 (about 16 GB). The PeMS inputs total about 11 GB.
 
 ```sh
 pip install -r requirements.txt
@@ -174,9 +209,13 @@ export PEMS_USERNAME=... PEMS_PASSWORD=...      # free PeMS account
 python fetch_pems.py --district 4 --from 2017-01-01 --to 2017-06-30 --out pems/d04/2017
 python fetch_pems.py --district 4 --from 2018-01-01 --to 2018-02-28 --out pems/d04/2018
 python fetch_pems.py --district 8 --from 2016-07-01 --to 2016-08-31 --out pems/d08/2016
+python fetch_pems.py --district 3 --from 2018-09-01 --to 2018-11-30 --out pems/d03/2018
+python fetch_pems.py --district 7 --from 2017-05-01 --to 2017-08-06 --out pems/d07/2017
 python pems_audit.py pems-bay --h5 pems-bay.h5 --pems-dir pems/d04/2017 --per-sensor bay_per_sensor.csv
 python pems_audit.py astgcn --npz pems04.npz --start 2018-01-01 --pems-dir pems/d04/2018 --mapping pems04_map.csv
 python pems_audit.py astgcn --npz pems08.npz --start 2016-07-01 --pems-dir pems/d08/2016 --mapping pems08_map.csv
+python pems_audit.py astgcn --npz PEMS03.npz --start 2018-09-01 --pems-dir pems/d03/2018 --mapping pems03_map.csv
+python pems_audit.py astgcn --npz PEMS07.npz --start 2017-05-01 --pems-dir pems/d07/2017 --mapping pems07_map.csv
 ```
 
 We do not redistribute PeMS data or the benchmark files.
@@ -203,3 +242,6 @@ We do not redistribute PeMS data or the benchmark files.
    arXiv:2306.08259
 7. LargeST repository, data processing notebook `data/ca/process_ca_his.ipynb`.
    https://github.com/liuxu77/LargeST (accessed October 2026)
+8. S. Guo, Y. Lin, H. Wan, X. Li, G. Cong. Learning Dynamics and Heterogeneity of Spatial-Temporal Graph
+   Data for Traffic Forecasting. *IEEE Transactions on Knowledge and Data Engineering*, 34(11):5415–5428,
+   2022. doi:10.1109/tkde.2021.3056502. Code and data: https://github.com/guoshnBJTU/ASTGNN

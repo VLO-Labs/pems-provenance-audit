@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Figure 1 for the report.
 
-A: share of values that are measured / partially measured / fully imputed in three released
+A: share of values that are measured / partially measured / fully imputed in five released
    benchmarks (value-level match to PeMS) and in a year of current PeMS source data (District 7).
 B: District 4 fully measured share by month, 2017–18 (benchmark era) vs 2025–26.
 
@@ -24,7 +24,9 @@ SURFACE = "#ffffff"
 
 rows = [  # label, measured, partial, imputed  (percent of cells / intervals)
     ("PEMS-BAY benchmark\nspeed · Jan–Jun 2017", 57.7, 17.9, 24.5),
+    ("PEMS03 benchmark\nflow · Sep–Nov 2018", 64.8, 13.2, 21.6),
     ("PEMS04 benchmark\nflow · Jan–Feb 2018", 57.1, 11.1, 31.8),
+    ("PEMS07 benchmark\nflow · May–Aug 2017", 40.2, 16.3, 43.5),
     ("PEMS08 benchmark\nflow · Jul–Aug 2016", 42.8, 9.1, 48.1),
     ("PeMS District 7 (LA), source data\nall stations · Sep 2025–Sep 2026", 12.9, 2.5, 84.6),
 ]
@@ -35,12 +37,12 @@ d4 = {  # month -> fully measured %, District 4, full months only
     "2026-04": 42.1, "2026-05": 47.3, "2026-06": 37.6, "2026-07": 20.3, "2026-08": 44.6, "2026-09": 45.8,
 }
 
-fig = plt.figure(figsize=(6.5, 4.6), dpi=300, facecolor=SURFACE)
-gs = fig.add_gridspec(2, 2, height_ratios=[1.25, 1], width_ratios=[1, 2.2], hspace=0.62, wspace=0.06)
+fig = plt.figure(figsize=(6.5, 5.4), dpi=300, facecolor=SURFACE)
+gs = fig.add_gridspec(2, 2, height_ratios=[1.8, 1], width_ratios=[1, 2.2], hspace=0.62, wspace=0.06)
 
 # ---- Panel A: 100% stacked horizontal bars ----
 ax = fig.add_subplot(gs[0, :])
-ys = [3.35, 2.35, 1.35, 0]          # extra gap before the source-data row
+ys = [5.35, 4.35, 3.35, 2.35, 1.35, 0]          # extra gap before the source-data row
 for (label, m, p, i), y in zip(rows, ys):
     left = 0
     for val, col in ((m, MEAS), (p, PART), (i, IMP)):
@@ -50,13 +52,13 @@ for (label, m, p, i), y in zip(rows, ys):
                     fontsize=8, color="white" if col != PART else INK, fontweight="bold" if col == IMP else None)
         left += val
 ax.set_yticks(ys, [r[0] for r in rows], fontsize=7.5)
-ax.set_xlim(0, 100); ax.set_ylim(-0.55, 3.9)
+ax.set_xlim(0, 100); ax.set_ylim(-0.55, 5.9)
 ax.set_xticks([0, 25, 50, 75, 100], ["0%", "25%", "50%", "75%", "100%"], fontsize=7.5)
 ax.tick_params(axis="y", length=0); ax.tick_params(axis="x", length=2)
 for s in ("top", "right", "left"):
     ax.spines[s].set_visible(False)
 ax.axhline(0.68, color=GRID, linewidth=0.8)
-ax.set_title("A   Benchmark values that are PeMS imputations (matched cell by cell; every value present in both is equal)",
+ax.set_title("A   Benchmark values that are PeMS imputations (every value matched cell by cell to PeMS)",
              loc="left", fontsize=8.5, color=INK, pad=16)
 # legend above the bars, in reading order
 for k, (lab, col) in enumerate((("Fully measured", MEAS), ("Partially measured", PART), ("Fully imputed by PeMS", IMP))):

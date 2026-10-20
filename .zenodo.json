@@ -1,19 +1,46 @@
 {
-  "title": "Three widely used PeMS traffic benchmarks contain unflagged imputed values: a cell-level provenance audit of PEMS-BAY, PEMS04 and PEMS08",
+  "title": "Five widely used PeMS traffic benchmarks contain unflagged imputed values: a cell-level provenance audit of PEMS-BAY, PEMS03, PEMS04, PEMS07 and PEMS08",
   "upload_type": "publication",
   "publication_type": "report",
-  "description": "<p>The Caltrans Performance Measurement System (PeMS) records, for every detector station and 5-minute interval, how much of the reported value was measured and how much was imputed. Three widely used spatio-temporal forecasting benchmarks derived from PeMS (PEMS-BAY, PEMS04 and PEMS08) are distributed without that record. We matched every value in the released files against the PeMS station records they were drawn from. Every value present in both sources is identical (for PEMS04 and PEMS08, under their inferred time windows and a recovered node-to-station mapping). 24.5% of PEMS-BAY speed values, 31.8% of PEMS04 flow values and 48.1% of PEMS08 flow values fall on intervals that PeMS marks as fully imputed. PEMS04 and PEMS08 also contain groups of identical, wholly imputed nodes (20 of 307 and 25 of 170). For the same PEMS-BAY sensors still reporting today, the fully imputed share has risen from 24.5% (2017) to 54.1% (2025–26).</p><p>This record contains the technical report (report/report.pdf, CC BY 4.0) and the audit code (Apache-2.0). PeMS data and the benchmark files are not redistributed.</p>",
+  "description": "<p>The Caltrans Performance Measurement System (PeMS) records, for every detector station and 5-minute interval, how much of the reported value was measured and how much was imputed. Five widely used spatio-temporal forecasting benchmarks derived from PeMS (PEMS-BAY, PEMS03, PEMS04, PEMS07 and PEMS08) are distributed without that record. We matched every value in the released files against the PeMS station records they were drawn from; more than 99.4% of each benchmark's values are identical to PeMS. The share of benchmark values on intervals PeMS marks as fully imputed is 24.5% (PEMS-BAY), 21.6% (PEMS03), 31.8% (PEMS04), 43.5% (PEMS07) and 48.1% (PEMS08). The four anonymized benchmarks also contain groups of identical, wholly imputed nodes (13 of 358, 20 of 307, 151 of 883 and 25 of 170). For the same PEMS-BAY sensors still reporting today, the fully imputed share has risen from 24.5% (2017) to 54.1% (2025–26).</p><p>This record contains the technical report (report/report.pdf, CC BY 4.0) and the audit code (Apache-2.0). PeMS data and the benchmark files are not redistributed.</p>",
   "creators": [
-    {"name": "Hakobyan, Hayk", "affiliation": "VLO Labs, Inc."}
+    {
+      "name": "Hakobyan, Hayk",
+      "affiliation": "VLO Labs, Inc.",
+      "orcid": "0009-0002-2960-8266"
+    }
   ],
   "license": "cc-by-4.0",
   "access_right": "open",
-  "keywords": ["data provenance", "traffic forecasting", "spatio-temporal benchmarks", "PeMS", "imputation"],
+  "keywords": [
+    "data provenance",
+    "traffic forecasting",
+    "spatio-temporal benchmarks",
+    "PeMS",
+    "imputation"
+  ],
   "language": "eng",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "related_identifiers": [
-    {"identifier": "10.1609/aaai.v33i01.3301922", "relation": "references", "scheme": "doi"},
-    {"identifier": "arXiv:1707.01926", "relation": "references", "scheme": "arxiv"},
-    {"identifier": "https://github.com/VLO-Labs/pems-provenance-audit", "relation": "isSupplementedBy", "scheme": "url"}
+    {
+      "identifier": "10.1609/aaai.v33i01.3301922",
+      "relation": "references",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "arXiv:1707.01926",
+      "relation": "references",
+      "scheme": "arxiv"
+    },
+    {
+      "identifier": "https://github.com/VLO-Labs/pems-provenance-audit",
+      "relation": "isSupplementedBy",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.1109/tkde.2021.3056502",
+      "relation": "references",
+      "scheme": "doi"
+    }
   ]
 }

@@ -2,10 +2,10 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23490606.svg)](https://doi.org/10.5281/zenodo.23490606)
 
-**Three widely used PeMS traffic benchmarks contain unflagged imputed values.**
+**Five widely used PeMS traffic benchmarks contain unflagged imputed values.**
 
 Caltrans PeMS marks every 5-minute detector value with how much of it was measured (`% observed`). The
-PEMS-BAY, PEMS04 and PEMS08 benchmarks drop that marking. This repository matches the released benchmark
+PEMS-BAY, PEMS03, PEMS04, PEMS07 and PEMS08 benchmarks drop that marking. This repository matches the released benchmark
 files against the PeMS records they came from, cell by cell.
 
 | Benchmark | Cells | Fully imputed by PeMS | Identical to PeMS |
@@ -13,35 +13,43 @@ files against the PeMS records they came from, cell by cell.
 | PEMS-BAY (speed, Jan–Jun 2017) | 16,937,700 | **24.5%** | every cell PeMS has a value for (521 zeros mark PeMS gaps) |
 | PEMS04 (flow, Jan–Feb 2018) | 5,216,544 | **31.8%** | 100% |
 | PEMS08 (flow, Jul–Aug 2016) | 3,035,520 | **48.1%** | 100% |
+| PEMS03 (flow, Sep–Nov 2018) | 9,382,464 | **21.6%** | 99.48% (rest: one day around a PeMS outage) |
+| PEMS07 (flow, May–Aug 2017) | 24,921,792 | **43.5%** | 99.84% (rest: one node, uncertain match) |
 
-PEMS04 and PEMS08 ship without PeMS station IDs; the tool re-identifies every node (307/307, 170/170).
-They also contain groups of identical, wholly imputed nodes (20 of 307 and 25 of 170).
+PEMS03, PEMS04, PEMS07 and PEMS08 ship without usable PeMS station IDs; the tool re-identifies every node.
+They also contain groups of identical, wholly imputed nodes: 13 of 358, 20 of 307, 151 of 883 and 25 of 170.
 
 Full write-up: [`report/report.md`](report/report.md) and `report/report.pdf`.
 
 ## Reproduce
 
-Needs Python 3.11+ (tested on 3.12), a free PeMS account (https://pems.dot.ca.gov/), about 7.5 GB of disk
-for the PeMS files and about 8 GB of RAM. Each audit runs in under 10 seconds on a 24-core workstation.
+Needs Python 3.11+ (tested on 3.12), a free PeMS account (https://pems.dot.ca.gov/), about 11 GB of disk
+for the PeMS files, and 8 GB of RAM (16 GB for PEMS07). Each audit runs in under 15 seconds on a 24-core
+workstation.
 
 ```sh
 python -m venv venv && venv/bin/pip install -r requirements.txt
 
-# 1. PeMS station_5min files for the benchmark windows (one file per day, ~7.5 GB total)
+# 1. PeMS station_5min files for the benchmark windows (one file per day, ~11 GB total)
 export PEMS_USERNAME=... PEMS_PASSWORD=...
 venv/bin/python fetch_pems.py --district 4 --from 2017-01-01 --to 2017-06-30 --out pems/d04/2017
 venv/bin/python fetch_pems.py --district 4 --from 2018-01-01 --to 2018-02-28 --out pems/d04/2018
 venv/bin/python fetch_pems.py --district 8 --from 2016-07-01 --to 2016-08-31 --out pems/d08/2016
+venv/bin/python fetch_pems.py --district 3 --from 2018-09-01 --to 2018-11-30 --out pems/d03/2018
+venv/bin/python fetch_pems.py --district 7 --from 2017-05-01 --to 2017-08-06 --out pems/d07/2017
 
 # 2. Benchmark files from the authors, placed in this directory
 #    pems-bay.h5: Google Drive folder linked from https://github.com/liyaguang/DCRNN (README, "Data Preparation")
 #    pems04.npz, pems08.npz: https://github.com/wanhuaiyu/ASTGCN, files data/PEMS04/pems04.npz and data/PEMS08/pems08.npz
+#    PEMS03.npz, PEMS07.npz: https://github.com/guoshnBJTU/ASTGNN, files data/PEMS03/PEMS03.npz and data/PEMS07/PEMS07.npz
 shasum -a 256 -c checksums.sha256      # Linux: sha256sum -c checksums.sha256
 
 # 3. Audit
 venv/bin/python pems_audit.py pems-bay --h5 pems-bay.h5 --pems-dir pems/d04/2017 --per-sensor bay_per_sensor.csv
 venv/bin/python pems_audit.py astgcn --npz pems04.npz --start 2018-01-01 --pems-dir pems/d04/2018 --mapping pems04_map.csv
 venv/bin/python pems_audit.py astgcn --npz pems08.npz --start 2016-07-01 --pems-dir pems/d08/2016 --mapping pems08_map.csv
+venv/bin/python pems_audit.py astgcn --npz PEMS03.npz --start 2018-09-01 --pems-dir pems/d03/2018 --mapping pems03_map.csv
+venv/bin/python pems_audit.py astgcn --npz PEMS07.npz --start 2017-05-01 --pems-dir pems/d07/2017 --mapping pems07_map.csv
 
 # Context: measured / partial / imputed shares in any PeMS files, optionally for a station list
 venv/bin/python pems_audit.py summary --pems-dir pems/d04/2017 --from 2017-01-01 --to 2017-06-30 --by-month
@@ -57,11 +65,11 @@ venv/bin/python pems_audit.py summary --pems-dir pems/d04/2017 --from 2017-01-01
 
 ## Citation
 
-Hakobyan, H. (2026). *Three widely used PeMS traffic benchmarks contain unflagged imputed values: a cell-level
-provenance audit of PEMS-BAY, PEMS04 and PEMS08* (v1.0.1). Zenodo. https://doi.org/10.5281/zenodo.23490607
+Hakobyan, H. (2026). *Five widely used PeMS traffic benchmarks contain unflagged imputed values: a cell-level
+provenance audit of PEMS-BAY, PEMS03, PEMS04, PEMS07 and PEMS08* (v1.1.0). Zenodo. https://doi.org/10.5281/zenodo.23490606
 
-The concept DOI [10.5281/zenodo.23490606](https://doi.org/10.5281/zenodo.23490606) always resolves to the latest
-version. Machine-readable: [`CITATION.cff`](CITATION.cff).
+That concept DOI always resolves to the latest version; v1.0.1 (three benchmarks) is
+[10.5281/zenodo.23490607](https://doi.org/10.5281/zenodo.23490607). Machine-readable: [`CITATION.cff`](CITATION.cff).
 
 ## License
 
