@@ -1,5 +1,7 @@
 # pems-provenance-audit
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23490606.svg)](https://doi.org/10.5281/zenodo.23490606)
+
 **Three widely used PeMS traffic benchmarks contain unflagged imputed values.**
 
 Caltrans PeMS marks every 5-minute detector value with how much of it was measured (`% observed`). The
@@ -55,7 +57,11 @@ venv/bin/python pems_audit.py summary --pems-dir pems/d04/2017 --from 2017-01-01
 
 ## Citation
 
-See [`CITATION.cff`](CITATION.cff).
+Hakobyan, H. (2026). *Three widely used PeMS traffic benchmarks contain unflagged imputed values: a cell-level
+provenance audit of PEMS-BAY, PEMS04 and PEMS08* (v1.0.1). Zenodo. https://doi.org/10.5281/zenodo.23490607
+
+The concept DOI [10.5281/zenodo.23490606](https://doi.org/10.5281/zenodo.23490606) always resolves to the latest
+version. Machine-readable: [`CITATION.cff`](CITATION.cff).
 
 ## License
 
